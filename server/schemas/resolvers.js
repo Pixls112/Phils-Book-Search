@@ -9,7 +9,7 @@ const resolvers = {
                 const userData = await User.findOne({ _id: context.user._id }).select('-__v -password');
                 return userData;
             }
-            throw AuthenticationError;
+            throw new AuthenticationError('Not logged in')
         },
     },
 
@@ -18,7 +18,7 @@ const resolvers = {
             const userData = await User.findOne({ email });
       
             if (!userData) {
-              throw new AuthenticationError('Incorrect username');
+              throw new AuthenticationError('Incorrect email');
             }
             const correctPw = await userData.isCorrectPassword(password);
             if (!correctPw) {
@@ -27,10 +27,11 @@ const resolvers = {
             const token = signToken(userData);
             return { token, userData };
           },
-          addUser: async (parent, args) => {
-            const userData = await User.create(args)
-            const tokenId = signToken(userData)
-            return { tokenId, userData };
+          addUser: async (parent, { username, email, password }) => {
+            const user = await User.create({ username, email, password });
+            const token = signToken(user);
+      
+            return { token, user };
           },
           saveBook: async (parent, { book }, context) => {
             if (context.user) {
@@ -41,7 +42,7 @@ const resolvers = {
                 )
                 return saveBook
             }
-            throw AuthenticationError
+            throw new AuthenticationError('Not logged in')
           },
           removeBook: async (parent, { bookId }, context) => {
             if (context.user)  {
@@ -52,7 +53,7 @@ const resolvers = {
                 )
                 return removeBook
             }
-            throw AuthenticationError
+            throw new AuthenticationError('Not logged in')
           }
     }
 }

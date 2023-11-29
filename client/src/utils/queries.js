@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const GET_ME = gql`
- get me {
+  {
     me {    
     _id
     username
@@ -13,7 +13,7 @@ export const GET_ME = gql`
         description
         title
         image
-        link:
+        link
     }
    }
  }
